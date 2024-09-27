@@ -4,61 +4,49 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.lab08_progmoviles.ui.theme.Lab08ProgMovilesTheme
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.room.Room
+import com.example.lab08_progmoviles.ui.theme.Lab08ProgMovilesTheme
 import kotlinx.coroutines.launch
-
-
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            Lab08Theme {
+            Lab08ProgMovilesTheme {
                 val db = Room.databaseBuilder(
                     applicationContext,
                     TaskDatabase::class.java,
                     "task_db"
                 ).build()
 
-
                 val taskDao = db.taskDao()
                 val viewModel = TaskViewModel(taskDao)
 
-
-                TaskScreen(viewModel)
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    TaskScreen(
+                        viewModel = viewModel,
+                        modifier = Modifier.padding(innerPadding)
+                    )
+                }
             }
         }
-    }
-
-    private fun Lab08Theme(function: @Composable () -> Unit) {
-        TODO("Not yet implemented")
     }
 }
 
 @Composable
-fun TaskScreen(viewModel: TaskViewModel) {
-    val tasks by viewModel.tasks.collectAsState()
+fun TaskScreen(viewModel: TaskViewModel, modifier: Modifier = Modifier) {
+    val tasks by viewModel.tasks.collectAsState(initial = emptyList())
     val coroutineScope = rememberCoroutineScope()
     var newTaskDescription by remember { mutableStateOf("") }
-
-
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
@@ -69,7 +57,6 @@ fun TaskScreen(viewModel: TaskViewModel) {
             modifier = Modifier.fillMaxWidth()
         )
 
-
         Button(
             onClick = {
                 if (newTaskDescription.isNotEmpty()) {
@@ -77,11 +64,12 @@ fun TaskScreen(viewModel: TaskViewModel) {
                     newTaskDescription = ""
                 }
             },
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp)
         ) {
             Text("Agregar tarea")
         }
-
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -101,9 +89,19 @@ fun TaskScreen(viewModel: TaskViewModel) {
 
         Button(
             onClick = { coroutineScope.launch { viewModel.deleteAllTasks() } },
-            modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp)
         ) {
             Text("Eliminar todas las tareas")
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TaskScreenPreview() {
+    Lab08ProgMovilesTheme {
+        TaskScreen(viewModel = TaskViewModel(TODO()))
     }
 }

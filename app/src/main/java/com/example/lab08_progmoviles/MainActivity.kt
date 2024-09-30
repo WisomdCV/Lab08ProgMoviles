@@ -5,6 +5,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -91,6 +93,7 @@ fun TaskScreen(
 ) {
     val filteredTasks by viewModel.filteredTasks.collectAsState(initial = emptyList())
     val coroutineScope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     Column(
         modifier = modifier
@@ -106,14 +109,25 @@ fun TaskScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        filteredTasks.forEach { task ->
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(text = task.description)
-                Button(onClick = { viewModel.toggleTaskCompletion(task) }) {
-                    Text(if (task.isCompleted) "Completada" else "Pendiente")
+        LazyColumn {
+            items(filteredTasks) { task ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(text = task.description)
+                        Checkbox(
+                            checked = task.isCompleted,
+                            onCheckedChange = { viewModel.toggleTaskCompletion(task) }
+                        )
+                    }
                 }
             }
         }
@@ -121,12 +135,19 @@ fun TaskScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = { coroutineScope.launch { viewModel.deleteAllTasks() } },
+            onClick = {
+                coroutineScope.launch {
+                    viewModel.deleteAllTasks()
+                    snackbarHostState.showSnackbar("Todas las tareas han sido eliminadas")
+                }
+            },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Eliminar todas las tareas")
         }
     }
+
+    SnackbarHost(hostState = snackbarHostState)
 }
 
 @Preview(showBackground = true)

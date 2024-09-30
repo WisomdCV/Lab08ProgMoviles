@@ -76,6 +76,9 @@ dependencies {
     //Dependencia solución al ktx
     implementation("androidx.room:room-ktx:$room_version")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$room_version")
+    //Notificaciones
+    implementation("androidx.work:work-runtime-ktx:2.8.1")
+    implementation("androidx.core:core-ktx:1.10.1")
 
 
 }

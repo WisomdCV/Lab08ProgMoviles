@@ -13,15 +13,21 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.List
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.room.Room
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.example.lab08_progmoviles.ui.theme.Lab08ProgMovilesTheme
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -40,6 +46,8 @@ class MainActivity : ComponentActivity() {
                 val viewModel = TaskViewModel(taskDao)
 
                 var newTaskDescription by remember { mutableStateOf("") }
+
+                scheduleNotificationWorker()
 
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
@@ -82,6 +90,18 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private fun scheduleNotificationWorker() {
+        val workManager = WorkManager.getInstance(applicationContext)
+        val notificationWorkRequest = PeriodicWorkRequestBuilder<NotificationWorker>(
+            5, TimeUnit.MINUTES //Ejecutar cada 15
+        ).build()
+        workManager.enqueueUniquePeriodicWork(
+            "task_reminder_work",
+            ExistingPeriodicWorkPolicy.REPLACE,
+            notificationWorkRequest
+        )
     }
 }
 
@@ -141,22 +161,33 @@ fun TaskScreen(
                                 Text("Guardar")
                             }
                         } else {
-                            Text(text = task.description)
-                            Row {
-                                Checkbox(
-                                    checked = task.isCompleted,
-                                    onCheckedChange = { viewModel.toggleTaskCompletion(task) }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = task.description,
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .padding(end = 8.dp)
+                                        .wrapContentWidth(Alignment.Start)
                                 )
-                                IconButton(onClick = {
-                                    editingTaskId = task.id
-                                    editedTaskDescription = task.description
-                                }) {
-                                    Icon(imageVector = Icons.Default.Edit, contentDescription = "Editar tarea")
-                                }
-                                IconButton(onClick = {
-                                    viewModel.deleteTask(task)
-                                }) {
-                                    Icon(imageVector = Icons.Default.Delete, contentDescription = "Eliminar tarea")
+                                Row {
+                                    Checkbox(
+                                        checked = task.isCompleted,
+                                        onCheckedChange = { viewModel.toggleTaskCompletion(task) }
+                                    )
+                                    IconButton(onClick = {
+                                        editingTaskId = task.id
+                                        editedTaskDescription = task.description
+                                    }) {
+                                        Icon(imageVector = Icons.Default.Edit, contentDescription = "Editar tarea")
+                                    }
+                                    IconButton(onClick = {
+                                        viewModel.deleteTask(task)
+                                    }) {
+                                        Icon(imageVector = Icons.Default.Delete, contentDescription = "Eliminar tarea")
+                                    }
                                 }
                             }
                         }

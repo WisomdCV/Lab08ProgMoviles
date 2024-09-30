@@ -50,13 +50,13 @@ class MainActivity : ComponentActivity() {
                     },
                     bottomBar = {
                         BottomAppBar {
-                            IconButton(onClick = { /* TODO: Mostrar todas las tareas */ }) {
+                            IconButton(onClick = { viewModel.showAllTasks() }) {
                                 Icon(imageVector = Icons.Default.List, contentDescription = "Todas las tareas")
                             }
-                            IconButton(onClick = { /* TODO: Mostrar tareas completadas */ }) {
+                            IconButton(onClick = { viewModel.showCompletedTasks() }) {
                                 Icon(imageVector = Icons.Default.Check, contentDescription = "Tareas completadas")
                             }
-                            IconButton(onClick = { /* TODO: Mostrar tareas pendientes */ }) {
+                            IconButton(onClick = { viewModel.showPendingTasks() }) {
                                 Icon(imageVector = Icons.Default.Delete, contentDescription = "Tareas pendientes")
                             }
                         }
@@ -81,7 +81,7 @@ fun TaskScreen(
     newTaskDescription: String,
     onTaskDescriptionChange: (String) -> Unit
 ) {
-    val tasks by viewModel.tasks.collectAsState(initial = emptyList())
+    val filteredTasks by viewModel.filteredTasks.collectAsState(initial = emptyList())
     val coroutineScope = rememberCoroutineScope()
 
     Column(
@@ -98,7 +98,7 @@ fun TaskScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        tasks.forEach { task ->
+        filteredTasks.forEach { task ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween

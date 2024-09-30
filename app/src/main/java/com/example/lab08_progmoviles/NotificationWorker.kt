@@ -4,19 +4,21 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 
-
 class NotificationWorker(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams) {
 
     override fun doWork(): Result {
+        Log.d("NotificationWorker", "Starting work")
         showNotification()
         return Result.success()
     }
 
     private fun showNotification() {
+        Log.d("NotificationWorker", "Showing notification")
         val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val channelId = "task_reminder_channel"
         val channelName = "Task Reminder"

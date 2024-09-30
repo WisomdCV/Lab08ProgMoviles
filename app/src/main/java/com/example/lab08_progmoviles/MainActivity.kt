@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.List
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.room.Room
@@ -20,6 +21,7 @@ import com.example.lab08_progmoviles.ui.theme.Lab08ProgMovilesTheme
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -38,6 +40,12 @@ class MainActivity : ComponentActivity() {
 
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
+                    topBar = {
+                        TopAppBar(
+                            title = { Text("Tareas") },
+                            colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color(0xFFBBC6FB))
+                        )
+                    },
                     floatingActionButton = {
                         FloatingActionButton(onClick = {
                             if (newTaskDescription.isNotEmpty()) {

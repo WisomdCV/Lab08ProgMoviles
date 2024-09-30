@@ -8,6 +8,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.List
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,6 +46,19 @@ class MainActivity : ComponentActivity() {
                             }
                         }) {
                             Icon(imageVector = Icons.Default.Add, contentDescription = "Agregar tarea")
+                        }
+                    },
+                    bottomBar = {
+                        BottomAppBar {
+                            IconButton(onClick = { /* TODO: Mostrar todas las tareas */ }) {
+                                Icon(imageVector = Icons.Default.List, contentDescription = "Todas las tareas")
+                            }
+                            IconButton(onClick = { /* TODO: Mostrar tareas completadas */ }) {
+                                Icon(imageVector = Icons.Default.Check, contentDescription = "Tareas completadas")
+                            }
+                            IconButton(onClick = { /* TODO: Mostrar tareas pendientes */ }) {
+                                Icon(imageVector = Icons.Default.Delete, contentDescription = "Tareas pendientes")
+                            }
                         }
                     }
                 ) { innerPadding ->

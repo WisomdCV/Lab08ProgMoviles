@@ -6,6 +6,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -29,10 +31,26 @@ class MainActivity : ComponentActivity() {
                 val taskDao = db.taskDao()
                 val viewModel = TaskViewModel(taskDao)
 
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                var newTaskDescription by remember { mutableStateOf("") }
+
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    floatingActionButton = {
+                        FloatingActionButton(onClick = {
+                            if (newTaskDescription.isNotEmpty()) {
+                                viewModel.addTask(newTaskDescription)
+                                newTaskDescription = ""
+                            }
+                        }) {
+                            Icon(imageVector = Icons.Default.Add, contentDescription = "Agregar tarea")
+                        }
+                    }
+                ) { innerPadding ->
                     TaskScreen(
                         viewModel = viewModel,
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier.padding(innerPadding),
+                        newTaskDescription = newTaskDescription,
+                        onTaskDescriptionChange = { newTaskDescription = it }
                     )
                 }
             }
@@ -41,10 +59,15 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun TaskScreen(viewModel: TaskViewModel, modifier: Modifier = Modifier) {
+fun TaskScreen(
+    viewModel: TaskViewModel,
+    modifier: Modifier = Modifier,
+    newTaskDescription: String,
+    onTaskDescriptionChange: (String) -> Unit
+) {
     val tasks by viewModel.tasks.collectAsState(initial = emptyList())
     val coroutineScope = rememberCoroutineScope()
-    var newTaskDescription by remember { mutableStateOf("") }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -52,27 +75,12 @@ fun TaskScreen(viewModel: TaskViewModel, modifier: Modifier = Modifier) {
     ) {
         TextField(
             value = newTaskDescription,
-            onValueChange = { newTaskDescription = it },
+            onValueChange = onTaskDescriptionChange,
             label = { Text("Nueva tarea") },
             modifier = Modifier.fillMaxWidth()
         )
 
-        Button(
-            onClick = {
-                if (newTaskDescription.isNotEmpty()) {
-                    viewModel.addTask(newTaskDescription)
-                    newTaskDescription = ""
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp)
-        ) {
-            Text("Agregar tarea")
-        }
-
         Spacer(modifier = Modifier.height(16.dp))
-
 
         tasks.forEach { task ->
             Row(
@@ -86,12 +94,11 @@ fun TaskScreen(viewModel: TaskViewModel, modifier: Modifier = Modifier) {
             }
         }
 
+        Spacer(modifier = Modifier.height(16.dp))
 
         Button(
             onClick = { coroutineScope.launch { viewModel.deleteAllTasks() } },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp)
+            modifier = Modifier.fillMaxWidth()
         ) {
             Text("Eliminar todas las tareas")
         }
@@ -102,6 +109,10 @@ fun TaskScreen(viewModel: TaskViewModel, modifier: Modifier = Modifier) {
 @Composable
 fun TaskScreenPreview() {
     Lab08ProgMovilesTheme {
-        TaskScreen(viewModel = TaskViewModel(TODO()))
+        TaskScreen(
+            viewModel = TaskViewModel(TODO()),
+            newTaskDescription = "",
+            onTaskDescriptionChange = {}
+        )
     }
 }

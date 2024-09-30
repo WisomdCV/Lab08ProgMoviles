@@ -153,6 +153,11 @@ fun TaskScreen(
                                 }) {
                                     Icon(imageVector = Icons.Default.Edit, contentDescription = "Editar tarea")
                                 }
+                                IconButton(onClick = {
+                                    viewModel.deleteTask(task)
+                                }) {
+                                    Icon(imageVector = Icons.Default.Delete, contentDescription = "Eliminar tarea")
+                                }
                             }
                         }
                     }

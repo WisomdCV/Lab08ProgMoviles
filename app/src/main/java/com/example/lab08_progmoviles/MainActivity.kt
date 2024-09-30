@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.List
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -95,6 +96,9 @@ fun TaskScreen(
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
+    var editingTaskId by remember { mutableStateOf<Int?>(null) }
+    var editedTaskDescription by remember { mutableStateOf("") }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -122,11 +126,35 @@ fun TaskScreen(
                             .padding(8.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(text = task.description)
-                        Checkbox(
-                            checked = task.isCompleted,
-                            onCheckedChange = { viewModel.toggleTaskCompletion(task) }
-                        )
+                        if (editingTaskId == task.id) {
+                            TextField(
+                                value = editedTaskDescription,
+                                onValueChange = { editedTaskDescription = it },
+                                label = { Text("Editar tarea") },
+                                modifier = Modifier.weight(1f)
+                            )
+                            Button(onClick = {
+                                viewModel.updateTaskDescription(task, editedTaskDescription)
+                                editingTaskId = null
+                                editedTaskDescription = ""
+                            }) {
+                                Text("Guardar")
+                            }
+                        } else {
+                            Text(text = task.description)
+                            Row {
+                                Checkbox(
+                                    checked = task.isCompleted,
+                                    onCheckedChange = { viewModel.toggleTaskCompletion(task) }
+                                )
+                                IconButton(onClick = {
+                                    editingTaskId = task.id
+                                    editedTaskDescription = task.description
+                                }) {
+                                    Icon(imageVector = Icons.Default.Edit, contentDescription = "Editar tarea")
+                                }
+                            }
+                        }
                     }
                 }
             }

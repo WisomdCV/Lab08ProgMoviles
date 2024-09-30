@@ -52,6 +52,15 @@ class TaskViewModel(private val dao: TaskDao) : ViewModel() {
             _filteredTasks.value = emptyList()
         }
     }
+    //Actualizar descriçión de la tarea
+    fun updateTaskDescription(task: Task, newDescription: String) {
+        viewModelScope.launch {
+            val updatedTask = task.copy(description = newDescription)
+            dao.updateTask(updatedTask)
+            _tasks.value = dao.getAllTasks()
+            _filteredTasks.value = _tasks.value
+        }
+    }
 
     // Funciones para filtrar tareas
     fun showAllTasks() {
